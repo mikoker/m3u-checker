@@ -35,8 +35,17 @@ class Utils:
         for line in file:
             line = line.strip()
             if line.startswith("#EXTINF:"):
-                duration, title = line.split("#EXTINF:")[1].split(",", 1)
-                playlist.append({"duration": duration, "title": title})
+                _, rest = line.split("#EXTINF:", 1)
+                parts = rest.rsplit(",", 1)  # Use rsplit instead of split
+                title = parts[1] if len(parts) > 1 else None
+                attrs = parts[0].split(" ", 1)[1] if len(parts[0].split(" ", 1)) > 1 else None
+                track = {"title": title}
+                if attrs:
+                    for attr in attrs.split(" "):
+                        if "=" in attr:
+                            key, value = attr.split("=", 1)
+                            track[key] = value.strip('"')
+                playlist.append(track)
             elif not line.startswith("#") and playlist:
                 playlist[-1]["url"] = line
         return playlist
