@@ -49,5 +49,7 @@ async def main():
         json.dump([{"link": link, "filename": filename} for link, filename in results], f, indent=4)
 
 if __name__ == "__main__":
-    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+    import sys
+    if sys.platform == 'win32':
+        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
     asyncio.run(main())
