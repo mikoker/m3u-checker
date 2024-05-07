@@ -14,8 +14,7 @@ def main():
     match choice:
         case 1:
             path = input("Playlist: ")
-            encoding = Utils.detect_encoding(path)
-            with open(path, 'r', encoding=encoding) as file:
+            with open(path, 'r', encoding="utf-8") as file:
                 playlist = Utils.parse_m3u(file)
             urls = [track['url'] for track in playlist]
             valid_urls = Utils.check_links(urls)

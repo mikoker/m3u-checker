@@ -1,1 +1,5 @@
 *.m3u
+venv/
+__pycache__/
+*.txt
+downloads/

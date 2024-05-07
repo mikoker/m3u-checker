@@ -1,24 +1,9 @@
-import requests, concurrent.futures, chardet
+import requests, concurrent.futures
 
 class Utils:
     """
     Utility class for handling M3U playlists.
     """
-
-    @staticmethod
-    def detect_encoding(path):
-        """
-        Detect the encoding of a file.
-
-        Args:
-            file (file): The file object to detect the encoding of.
-
-        Returns:
-            str: The detected encoding of the file.
-        """
-        with open(path, 'rb') as file:
-            result = chardet.detect(file.read())
-        return result['encoding']
 
     @staticmethod
     def parse_m3u(file):
