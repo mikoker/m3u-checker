@@ -1,2 +1,3 @@
-chardet
 requests
+aiohttp
+bs4
