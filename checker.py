@@ -6,6 +6,7 @@ def main():
     path = "downloads"
     files = os.listdir(path)
     m3u_files = [file for file in files if file.endswith(".m3u")]
+    print(m3u_files)
     for file in m3u_files:
         full_path = os.path.join(path, file)
         print(f"Checking {full_path}")
@@ -17,7 +18,7 @@ def main():
         print(f"Checked {len(urls)} links, {len(valid_urls)} are valid, {len(urls) - len(valid_urls)} are invalid.")
         if not valid_playlist:
             print("No valid links found")
-            return
+            continue
         with open('checked_'+file, 'w', encoding="utf-8") as f:
             print(f"Writing {len(valid_playlist)} valid links to {f.name}")
             Utils.generate_m3u(valid_playlist, f)

@@ -97,7 +97,7 @@ class Utils:
         except (requests.exceptions.Timeout, requests.exceptions.TooManyRedirects, requests.exceptions.HTTPError, requests.exceptions.ConnectionError, requests.exceptions.RequestException) as e:    
             print(f"Error with {link}, error: {e}")
             pass
-        print(f"BAD: {link}")
+        # print(f"BAD: {link}")
         return None
 
     @staticmethod
