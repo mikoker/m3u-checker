@@ -5,7 +5,8 @@ def main():
     """Check all m3u lists from folder."""
     path = "downloads"
     files = os.listdir(path)
-    for file in files:
+    m3u_files = [file for file in files if file.endswith(".m3u")]
+    for file in m3u_files:
         full_path = os.path.join(path, file)
         print(f"Checking {full_path}")
         with open(full_path, 'r', encoding="utf-8") as f:
