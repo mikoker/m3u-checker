@@ -89,7 +89,7 @@ class Utils:
             return None
         try:
             print(f"Checking {link}")
-            with requests.get(link, timeout=10, headers={"User-Agent": "'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'"}) as response:
+            with requests.get(link, timeout=10, stream=True, headers={"User-Agent": "'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'"}) as response:
                 content_type = response.headers.get("Content-Type", "")
                 if response.status_code in [200, 302, 303] and any(substring in content_type for substring in ['audio', 'video', 'mpeg', 'stream', 'x-mpegurl']):
                     print(f"OK: {link}")

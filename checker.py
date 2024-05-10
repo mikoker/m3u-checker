@@ -26,11 +26,7 @@ def main():
             os.remove(full_path)
             m3u_files.remove(file)
             continue
-        # save_path = os.path.join(path, 'checked_'+file)
-        # with open(save_path, 'w', encoding="utf-8") as f:
-        #     print(f"Writing {len(valid_playlist)} valid links to {f.name}")
-        #     Utils.generate_m3u(valid_playlist, f)
-        valid_playlists.append(valid_playlists)
+        valid_playlists.append(valid_playlist)
     print("All playlists checked.")
     if valid_playlists:
         print("Merging playlists...")

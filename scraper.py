@@ -1,5 +1,6 @@
 #! /usr/bin/env python3
 import asyncio, aiohttp, json
+from tqdm import tqdm
 from bs4 import BeautifulSoup
 
 headers = {
@@ -14,41 +15,45 @@ async def get_content(url):
     async with aiohttp.ClientSession(headers=headers, connector=aiohttp.TCPConnector(ssl=False)) as session:
         html = await fetch(url, session)
         soup = BeautifulSoup(html, "html.parser")
-        page_body = soup.find("div", id="page-body")
-        data = []
-        if page_body:
-            posts = page_body.select("div", class_="post has-profile")
-            for post in posts:
-                link_element = post.find("a", class_="postlink")
-                if link_element:
-                    data.append({"link": link_element.get("href"), "filename": link_element.text})
-        pagination = soup.find("div", class_="pagination")
-        last_page_num = 0
-        last_page_link = ""
-        if pagination:
-            page_links = pagination.find_all("a", class_="button")
-            if page_links:
-                last_page_link_element = page_links[-2]
-                last_page_link = last_page_link_element.get("href")
-                last_page_num = int(last_page_link_element.text)
-        return last_page_num, last_page_link, data
+        links = [a["href"] for a in soup.select("a.postlink")]
+        return links
+
+async def check_if_m3u(link):
+    async with aiohttp.ClientSession(headers=headers, connector=aiohttp.TCPConnector(ssl=False)) as session:
+        try:
+            async with session.get(link) as response:
+                content_type = response.headers.get("Content-Type", "")
+                if not content_type == "application/octet-stream":
+                    return False
+                return link
+        except Exception as e:
+            print(f"Cannot connect to host {link}")
+            return False
 
 async def main():
-    filename = input("Enter the file name(.json): ")
-    topic_url = "https://sat-forum.net/viewtopic.php?t=424"
-    base_url = "https://sat-forum.net/"
-    page = "&start="
-    last_page_num, last_page_link, data = await get_content(topic_url)
-    results = set()
-    results.update({(base_url + item["link"].replace("./", ""), item["filename"]) for item in data})
-    for i in range(1, last_page_num):
-        print(f"Scraping page {i} of {last_page_num}...")
-        url = topic_url + page + str(i*10)
-        _, _, data = await get_content(url)
-        results.update({(base_url + item["link"].replace("./", ""), item["filename"]) for item in data})
-
+    filename = input("Enter the file name: ")
+    topic_url = "https://www.satworld-forum.com/viewtopic.php?t=8&start=70"
+    links = await get_content(topic_url)
+    m3u_links = []
+    bad_m3u_links = []
+    with tqdm(total=len(links), bar_format='{l_bar}{bar}| {n_fmt}/{total_fmt}') as pbar:
+        for link in links:
+            if await check_if_m3u(link):
+                m3u_links.append(link)
+                pbar.set_description(f"Working: {len(m3u_links)}, Bad: {len(bad_m3u_links)}, Total: {len(links)}")
+                pbar.update()
+                tqdm.write(f"OK: {link}")
+            else:
+                bad_m3u_links.append(link)
+                pbar.set_description(f"Working: {len(m3u_links)}, Bad: {len(bad_m3u_links)}, Total: {len(links)}")
+                pbar.update()
+                tqdm.write(f"BAD: {link}")
+    if not m3u_links:
+        return print("No m3u links found.")
+    print(m3u_links)
     with open(filename, "w") as f:
-        json.dump([{"link": link, "filename": filename} for link, filename in results], f, indent=4)
+        json.dump(m3u_links, f, indent=4)
+    print(f"Saved {len(m3u_links)} links to {filename}")
 
 if __name__ == "__main__":
     import sys
