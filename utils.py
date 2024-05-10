@@ -89,15 +89,13 @@ class Utils:
             return None
         try:
             print(f"Checking {link}")
-            response = requests.get(link, timeout=30, headers={"User-Agent": "'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'"})
-            content_type = response.headers.get("Content-Type", "")
-            if response.status_code in [200, 302, 303] and any(substring in content_type for substring in ['audio', 'video', 'mpeg', 'stream', 'x-mpegurl']):
-                print(f"OK: {link}")
-                return link
+            with requests.get(link, timeout=10, headers={"User-Agent": "'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'"}) as response:
+                content_type = response.headers.get("Content-Type", "")
+                if response.status_code in [200, 302, 303] and any(substring in content_type for substring in ['audio', 'video', 'mpeg', 'stream', 'x-mpegurl']):
+                    print(f"OK: {link}")
+                    return link
         except (requests.exceptions.Timeout, requests.exceptions.TooManyRedirects, requests.exceptions.HTTPError, requests.exceptions.ConnectionError, requests.exceptions.RequestException) as e:    
             print(f"Error with {link}, error: {e}")
-            pass
-        # print(f"BAD: {link}")
         return None
 
     @staticmethod
@@ -112,7 +110,7 @@ class Utils:
             list: A list of valid links.
         """
         valid_links = []
-        with concurrent.futures.ThreadPoolExecutor() as executor:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
             future_to_link = {executor.submit(Utils.check_link, link): link for link in links}
             for future in concurrent.futures.as_completed(future_to_link):
                 link = future.result()

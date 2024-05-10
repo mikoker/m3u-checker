@@ -1,3 +1,4 @@
+#! /usr/bin/env python3
 import asyncio, aiohttp, json
 from bs4 import BeautifulSoup
 
@@ -33,7 +34,7 @@ async def get_content(url):
         return last_page_num, last_page_link, data
 
 async def main():
-    filename = input("Enter the file name: ")
+    filename = input("Enter the file name(.json): ")
     topic_url = "https://sat-forum.net/viewtopic.php?t=424"
     base_url = "https://sat-forum.net/"
     page = "&start="
@@ -41,6 +42,7 @@ async def main():
     results = set()
     results.update({(base_url + item["link"].replace("./", ""), item["filename"]) for item in data})
     for i in range(1, last_page_num):
+        print(f"Scraping page {i} of {last_page_num}...")
         url = topic_url + page + str(i*10)
         _, _, data = await get_content(url)
         results.update({(base_url + item["link"].replace("./", ""), item["filename"]) for item in data})
